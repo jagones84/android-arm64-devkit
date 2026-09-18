@@ -2,33 +2,20 @@
 # Connect to an Android device over USB or wireless, without ever assuming a port.
 set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/adb.sh
+. "$HERE/lib/adb.sh"
 [ -f "$HERE/../config.sh" ] && . "$HERE/../config.sh"
 
-ADB_REMOTE_HOST="${ADB_REMOTE_HOST:-}"
-ADB_REMOTE_BIN="${ADB_REMOTE_BIN:-adb}"
 ADB_HOST="${ADB_HOST:-}"
 ADB_TCP_PORT="${ADB_TCP_PORT:-}"
 DEVICE_SERIAL="${DEVICE_SERIAL:-}"
 
-# adb_call runs adb here, or on a remote host over ssh when configured.
-adb_call() {
-  if [ -n "$ADB_REMOTE_HOST" ]; then
-    if [ -n "${ADB_REMOTE_BIN:-}" ]; then
-      ssh -o BatchMode=yes "$ADB_REMOTE_HOST" "'$ADB_REMOTE_BIN' $*"
-    else
-      ssh -o BatchMode=yes "$ADB_REMOTE_HOST" "adb $*"
-    fi
-  else
-    adb "$@"
-  fi
-}
-
 echo "== transports currently visible =="
-LIST="$(adb_call devices -l)"
-echo "$LIST" | sed 's/^/  /'
+LIST="$(adb_text devices -l)"
+printf '%s\n' "$LIST" | sed 's/^/  /'
 
-USB_SERIAL="$(echo "$LIST" | awk '/ device / && $1 !~ /:/ {print $1; exit}')"
-WIRELESS="$(echo "$LIST" | awk '/ device / && $1 ~ /:/ {print $1; exit}')"
+USB_SERIAL="$(printf '%s\n' "$LIST" | awk '/ device/ && $1 !~ /:/ {print $1; exit}')"
+WIRELESS="$(printf '%s\n' "$LIST" | awk '/ device/ && $1 ~ /:/ {print $1; exit}')"
 
 if [ -n "$ADB_HOST" ]; then
   PORT="$ADB_TCP_PORT"
@@ -37,7 +24,7 @@ if [ -n "$ADB_HOST" ]; then
     echo "  discovered port from an existing wireless transport: $PORT"
   fi
   if [ -z "$PORT" ] && [ -n "$USB_SERIAL" ]; then
-    PORT="$(adb_call -s "$USB_SERIAL" shell getprop service.adb.tcp.port | tr -d '\r')"
+    PORT="$(adb_text -s "$USB_SERIAL" shell getprop service.adb.tcp.port | tr -d ' ')"
     [ -n "$PORT" ] && echo "  port read over USB from service.adb.tcp.port: $PORT"
   fi
   if [ -z "$PORT" ]; then
@@ -61,10 +48,10 @@ else
 fi
 
 echo "== verifying =="
-adb_call devices -l | sed 's/^/  /'
-STATE="$(adb_call devices | awk -v d="$OK" '$1==d {print $2}')"
+adb_text devices -l | sed 's/^/  /'
+STATE="$(adb_text devices | awk -v d="$OK" '$1==d {print $2}')"
 case "$STATE" in
-  device) echo "OK: $OK is ready"; echo "$OK" > "$HERE/../.adb-device" ;;
-  unauthorized) echo "UNAUTHORIZED: accept the USB-debugging prompt on the device, or sync ~/.android/adbkey from the host that is already authorized" >&2; exit 1 ;;
+  device) echo "OK: $OK is ready"; printf '%s\n' "$OK" > "$HERE/../.adb-device" ;;
+  unauthorized) echo "UNAUTHORIZED: accept the USB-debugging prompt on the device, or copy ~/.android/adbkey from the host that is already authorized" >&2; exit 1 ;;
   *) echo "device state is '$STATE' (offline?) — try: adb kill-server && adb start-server, then re-run" >&2; exit 1 ;;
 esac
