@@ -1,0 +1,18 @@
+# personal, never commit
+config.sh
+*.local.sh
+
+# build output
+build/
+.gradle/
+local.properties
+*.apk
+*.aab
+*.keystore
+
+# editor / os
+.idea/
+*.iml
+.DS_Store
+.adb-device
+out/
