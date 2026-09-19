@@ -1,6 +1,6 @@
 ---
 name: android-arm64-devkit
-description: Create, build and deploy Android APKs on ARM64 Linux (DGX Spark, Raspberry Pi, ARM cloud): native aarch64 aapt2 for Gradle, plus adb install-and-verify over USB or VPN. Use for aarch64 APK work.
+description: "Create, build and deploy Android APKs on ARM64 Linux (DGX Spark, Raspberry Pi, ARM cloud): native aarch64 aapt2 for Gradle, plus adb install-and-verify over USB or VPN. Use for aarch64 APK work."
 metadata:
   emoji: 🤖
   os: [linux]
