@@ -76,6 +76,34 @@ out="$(cd "$COPY" && PATH="$STUB:$PATH" ADB_HOST=dev STUB_CRLF=1 \
   && ok "tolerates CRLF line endings from a Windows adb server" \
   || ko "tolerates CRLF line endings from a Windows adb server" "exit=$rc out=$(printf '%s' "$out" | tr -d '\r' | tr '\n' ' ')"
 
+echo "== SKILL.md =="
+
+SKILL="$REPO/SKILL.md"
+[ -f "$SKILL" ] && ok "SKILL.md exists at repo root" || ko "SKILL.md exists at repo root" "missing SKILL.md"
+
+if [ -f "$SKILL" ]; then
+  grep -q '^name: *android-arm64-devkit' "$SKILL" \
+    && ok "frontmatter declares the skill name" || ko "frontmatter declares the skill name"
+
+  desc="$(sed -n 's/^description: *//p' "$SKILL" | head -1)"
+  [ -n "$desc" ] && [ "${#desc}" -lt 200 ] \
+    && ok "description present and under 200 chars (${#desc})" \
+    || ko "description present and under 200 chars" "len=${#desc}"
+
+  miss=""
+  for p in $(grep -oE '\{baseDir\}/[A-Za-z0-9._/-]+' "$SKILL" | sed 's#{baseDir}/##' | sort -u); do
+    [ -e "$REPO/$p" ] || miss="$miss $p"
+  done
+  [ -z "$miss" ] && ok "every {baseDir} reference resolves" || ko "every {baseDir} reference resolves" "missing:$miss"
+
+  grep -qiE '^#+ .*host' "$SKILL" && grep -qi 'aarch64' "$SKILL" \
+    && grep -qi 'x86-64' "$SKILL" && grep -qi 'windows' "$SKILL" \
+    && ok "has a host-branch section (ARM64 vs x86-64 vs Windows)" \
+    || ko "has a host-branch section (ARM64 vs x86-64 vs Windows)"
+  grep -q 'config.example.sh' "$SKILL" \
+    && ok "routes personal values through config.example.sh" || ko "routes personal values through config.example.sh"
+fi
+
 echo "== repository hygiene =="
 
 miss=""
