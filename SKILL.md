@@ -57,6 +57,24 @@ cd path/to/project && ./gradlew clean assembleDebug
 {baseDir}/scripts/adb-disconnect.sh
 ```
 
+## ARM64 host gotchas (any aarch64 distro)
+
+Distro/toolchain facts, not host-specific values — values still live in `config.sh`
+or the project.
+
+- **Google's `adb` is x86-64 too.** `platform-tools/adb` from the SDK will not run
+  on aarch64 either; use the distro's `adb` (the setup step installs
+  `android-sdk-platform-tools`, which provides one). Confirm with
+  `file "$(command -v adb)"`.
+- **Non-interactive shells skip the rc guard.** Ubuntu's `~/.bashrc` starts with
+  `case $- in *i*) ;; *) return;; esac`; anything after it — including Android env
+  exports — is skipped by `ssh host 'cmd'`. Put the `ANDROID_HOME` / `JAVA_HOME` /
+  `GRADLE_HOME` exports **before** that guard, then verify with
+  `ssh host 'echo "$ANDROID_HOME"'`.
+- **The distro `aapt2` is older than AGP's.** It parses `android.jar` for older
+  platforms only; if a very new `compileSdk` fails with a resource-table error,
+  lower `compileSdk` / `targetSdk` to a supported platform and re-test.
+
 ## Operating Rules (for agents)
 
 - **MUST** invoke the repo scripts by their `{baseDir}` path; never rewrite their

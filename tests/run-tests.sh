@@ -102,6 +102,13 @@ if [ -f "$SKILL" ]; then
     || ko "has a host-branch section (ARM64 vs x86-64 vs Windows)"
   grep -q 'config.example.sh' "$SKILL" \
     && ok "routes personal values through config.example.sh" || ko "routes personal values through config.example.sh"
+
+  grep -qiE '^#+ .*gotcha' "$SKILL" \
+    && ok "has an ARM64 host-gotchas section" || ko "has an ARM64 host-gotchas section"
+  grep -qF 'case $-' "$SKILL" \
+    && ok "documents the non-interactive shell rc-guard trap" || ko "documents the non-interactive shell rc-guard trap"
+  grep -q 'compileSdk' "$SKILL" \
+    && ok "documents the compileSdk cap with the distro aapt2" || ko "documents the compileSdk cap with the distro aapt2"
 fi
 
 echo "== repository hygiene =="
