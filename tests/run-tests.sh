@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Test suite for android-arm64-devkit.
+# Test suite for android-arm64-devkit-skill.
 #
 #   ./tests/run-tests.sh
 #

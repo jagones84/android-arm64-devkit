@@ -29,6 +29,10 @@ echo "  arch: $(uname -m)"
 echo
 echo "== candidates on PATH / SDK =="
 FOUND=0
+SEARCH_DIRS=()
+for d in "${ANDROID_HOME:-}" "${ANDROID_SDK_ROOT:-}" "$HOME/Android" "$HOME/Library/Android/sdk" /opt /usr/lib/android-sdk; do
+  [ -n "$d" ] && [ -d "$d" ] && SEARCH_DIRS+=("$d")
+done
 while IFS= read -r bin; do
   [ -n "$bin" ] || continue
   FOUND=1
@@ -39,7 +43,7 @@ while IFS= read -r bin; do
   else
     printf '    -> NOT runnable here (expected on this host)\n'
   fi
-done < <( { command -v aapt2 || true; find "$HOME" /opt /usr/lib/android-sdk -maxdepth 6 -name aapt2 -type f 2>/dev/null; } | sort -u )
+done < <( { command -v aapt2 || true; [ ${#SEARCH_DIRS[@]} -gt 0 ] && timeout 20 find "${SEARCH_DIRS[@]}" -maxdepth 6 -name aapt2 -type f 2>/dev/null || true; } | sort -u )
 [ "$FOUND" = 1 ] || echo "  (no aapt2 found)"
 
 echo

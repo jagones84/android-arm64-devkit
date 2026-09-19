@@ -202,7 +202,7 @@ cat > "$DEST/app/src/main/res/values/strings.xml" <<EOF
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">$NAME</string>
-    <string name="subtitle">Scaffolded by android-arm64-devkit</string>
+    <string name="subtitle">Scaffolded by android-arm64-devkit-skill</string>
 </resources>
 EOF
 

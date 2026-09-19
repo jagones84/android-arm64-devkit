@@ -1,4 +1,4 @@
-# android-arm64-devkit
+# android-arm64-devkit-skill
 
 Build **and** deploy Android APKs from an **ARM64 Linux** host
 (NVIDIA DGX Spark, Raspberry Pi, ARM servers, ARM cloud instances).

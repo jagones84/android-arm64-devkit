@@ -1,12 +1,12 @@
 ---
-name: android-arm64-devkit
+name: android-arm64-devkit-skill
 description: "Create, build and deploy Android APKs on ARM64 Linux (DGX Spark, Raspberry Pi, ARM cloud): native aarch64 aapt2 for Gradle, plus adb install-and-verify over USB or VPN. Use for aarch64 APK work."
 metadata:
   emoji: 🤖
   os: [linux]
 ---
 
-# android-arm64-devkit
+# android-arm64-devkit-skill
 
 Thin wrapper over the scripts in this repo. One skill, two branches: pick your
 **host** and your **transport**. Every machine-specific value lives in
