@@ -40,6 +40,17 @@ package ids and personal paths go **here** — not in this skill, not in any tra
 file. Gradle-side values (`sdk.dir`, `android.aapt2FromMavenOverride`) belong to
 the project's `local.properties` / `gradle.properties`.
 
+## Create an app (scaffold)
+
+```bash
+{baseDir}/scripts/new-project.sh ~/apps/MyApp com.example.myapp "My App"
+cd ~/apps/MyApp && ./gradlew clean assembleDebug
+```
+
+Creates a minimal Gradle + Kotlin project (one Activity, adaptive icon,
+`minSdk 26`) that already carries the aarch64 aapt2 override. It refuses to
+overwrite an existing path and validates the package id.
+
 ## Build branch (ARM64 host)
 
 ```bash
@@ -51,11 +62,29 @@ cd path/to/project && ./gradlew clean assembleDebug
 
 ## Deploy + verify branch (any host)
 
+Prepare the transport once — these values are personal, so they go in `config.sh`
+(never committed):
+
 ```bash
-{baseDir}/scripts/adb-connect.sh
-{baseDir}/scripts/adb-install-verify.sh app/build/outputs/apk/debug/app-debug.apk
-{baseDir}/scripts/adb-disconnect.sh
+cp {baseDir}/config.example.sh {baseDir}/config.sh
+# USB:        ADB_HOST=""          DEVICE_SERIAL=<serial from `adb devices -l`>
+# VPN (TCP):  ADB_HOST=<magicdns>  ADB_TCP_PORT=""   (the port is discovered)
+# remote adb: ADB_REMOTE_HOST=<ssh alias>  ADB_REMOTE_BIN=<adb path on that host>
 ```
+
+Then connect, install, verify, tear down:
+
+```bash
+{baseDir}/scripts/adb-connect.sh        # discovers the port; writes .adb-device
+{baseDir}/scripts/adb-install-verify.sh app/build/outputs/apk/debug/app-debug.apk
+{baseDir}/scripts/adb-disconnect.sh     # add --restart-server to unwedge adb
+```
+
+`adb-connect.sh` never guesses the port: it reads it from an existing wireless
+transport or over USB, and fails loudly if wireless debugging is not exposed.
+`adb-install-verify.sh` prints the install result, the installed version/time,
+launches the activity, checks the focused window and the process pid, greps
+logcat for crashes, and captures a screenshot (warns below ~30 KB).
 
 ## ARM64 host gotchas (any aarch64 distro)
 
