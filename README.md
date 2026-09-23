@@ -89,6 +89,13 @@ Two transports, pick whichever your device is on:
 5. greps logcat for crashes
 6. takes a screenshot and flags the "cached black framebuffer" trap
 
+## Examples
+
+[`examples/README.md`](examples/README.md) captures a real run: toolchain
+diagnosis (Google `aapt2` x86-64 vs the Debian **aarch64** build), the
+scaffolded project tree, the `gradle.properties` override, and the self-test
+suite (`36 passed, 0 failed`).
+
 ## Troubleshooting
 
 See [`docs/troubleshooting.md`](docs/troubleshooting.md) — every trap below was
