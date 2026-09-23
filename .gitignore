@@ -16,3 +16,6 @@ local.properties
 .DS_Store
 .adb-device
 out/
+
+# local operator memory (never shipped)
+.agent/
