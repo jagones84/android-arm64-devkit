@@ -90,10 +90,14 @@ if [ -f "$SKILL" ]; then
     && ok "description present and under 200 chars (${#desc})" \
     || ko "description present and under 200 chars" "len=${#desc}"
 
+  # Files that only exist at runtime (gitignored, e.g. config.sh copied from
+  # config.example.sh) are expected to be absent in a fresh clone.
   miss=""
-  for p in $(grep -oE '\{baseDir\}/[A-Za-z0-9._/-]+' "$SKILL" | sed 's#{baseDir}/##' | sort -u); do
+  while IFS= read -r p; do
+    [ -n "$p" ] || continue
+    git -C "$REPO" check-ignore -q "$p" && continue
     [ -e "$REPO/$p" ] || miss="$miss $p"
-  done
+  done < <(grep -oE '\{baseDir\}/[A-Za-z0-9._/-]+' "$SKILL" | sed 's#{baseDir}/##' | sort -u)
   [ -z "$miss" ] && ok "every {baseDir} reference resolves" || ko "every {baseDir} reference resolves" "missing:$miss"
 
   grep -qiE '^#+ .*host' "$SKILL" && grep -qi 'aarch64' "$SKILL" \
